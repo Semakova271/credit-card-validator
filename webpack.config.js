@@ -1,13 +1,14 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  entry: './src/js/app.js', // Правильный путь к точке входа
+  entry: './src/js/app.js',
   output: {
     filename: 'main.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
-    assetModuleFilename: 'assets/[name][ext]'
+    assetModuleFilename: 'img/[name][ext]' // Сохранять изображения в img/
   },
   module: {
     rules: [
@@ -33,11 +34,17 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html' // Убедитесь, что этот файл существует
+      template: './src/index.html'
+    }),
+    // Копируем все изображения из src/img в dist/img
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'src/img',
+          to: 'img',
+          noErrorOnMissing: true
+        }
+      ]
     })
-  ],
-  // Добавьте resolve для обработки расширений файлов
-  resolve: {
-    extensions: ['.js']
-  }
+  ]
 };
