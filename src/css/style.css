@@ -5,45 +5,90 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-color: #f0f0f0;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
+
 .container {
-    text-align: center;
+    width: 300px;
     background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    width: 320px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    text-align: center;
 }
+
 .card-header {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #333;
-    text-transform: uppercase;
+    background: #f8f9fa;
+    padding: 20px 0;
+    border-bottom: 1px solid #e9ecef;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-#card-number {
-    width: 100%;
-    padding: 12px;
+
+.card-header img {
+    max-height: 40px;
+    max-width: 80px;
+    object-fit: contain;
+}
+
+#cardNumber {
+    width: 80%;
+    padding: 15px;
+    margin: 20px 0;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
     font-size: 16px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
     text-align: center;
     letter-spacing: 1px;
+    transition: all 0.3s;
 }
-#validate-btn {
-    width: 100%;
+
+#cardNumber:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+#validateBtn {
+    width: 80%;
     padding: 12px;
-    font-size: 16px;
-    background-color: #4285f4;
+    margin-bottom: 20px;
+    background: #007bff;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background 0.3s;
 }
-#validate-btn:hover {
-    background-color: #3367d6;
+
+#validateBtn:hover {
+    background: #0069d9;
+}
+
+.result {
+    padding: 15px;
+    margin: 0 20px 20px;
+    border-radius: 8px;
+    display: none;
+    font-weight: bold;
+}
+
+.result.valid {
+    display: block;
+    background: #d4edda;
+    color: #155724;
+}
+
+.result.invalid {
+    display: block;
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.result-text {
+    font-size: 16px;
 }
