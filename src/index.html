@@ -4,97 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Credit Card Validator</title>
-    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <div id="card-header" class="card-header">VISA</div>
+        <div id="card-header" class="card-header"></div>
         <input 
             type="text" 
-            id="card-number" 
+            id="cardNumber" 
             placeholder="Номер карты"
             value=""
             maxlength="19"
         >
-        <button id="validate-btn">Click to Validate</button>
+        <button id="validateBtn">Проверить карту</button>
+        <div id="result" class="result">
+            <div class="result-icon"></div>
+            <div class="result-text"></div>
+            <div class="result-details"></div>
+        </div>
     </div>
-
-    <script>
-        const cardNumberInput = document.getElementById('card-number');
-        const cardHeader = document.getElementById('card-header');
-        const validateBtn = document.getElementById('validate-btn');
-
-        // Автоформатирование номера карты
-        cardNumberInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            let formatted = '';
-            
-            for (let i = 0; i < value.length; i++) {
-                if (i > 0 && i % 4 === 0) formatted += ' ';
-                formatted += value[i];
-            }
-            
-            e.target.value = formatted;
-            detectPaymentSystem(value);
-        });
-
-        // Определение платежной системы
-        function detectPaymentSystem(cardNumber) {
-            const firstTwo = cardNumber.substring(0, 2);
-            const firstOne = cardNumber.substring(0, 1);
-
-            if (firstOne === '4') {
-                cardHeader.textContent = 'VISA';
-            } else if (firstTwo === '55') {
-                cardHeader.textContent = 'Mastercard';
-            } else if (firstTwo === '22') {
-                cardHeader.textContent = 'MMP';
-            } else if (firstTwo === '34' || firstTwo === '37') {
-                cardHeader.textContent = 'American Express';
-            } else {
-                cardHeader.textContent = '';
-            }
-        }
-
-        // Валидация алгоритмом Луна
-        function luhnCheck(cardNumber) {
-            cardNumber = cardNumber.replace(/\D/g, '');
-            let sum = 0;
-            let shouldDouble = false;
-
-            for (let i = cardNumber.length - 1; i >= 0; i--) {
-                let digit = parseInt(cardNumber.charAt(i));
-
-                if (shouldDouble) {
-                    digit *= 2;
-                    if (digit > 9) digit -= 9;
-                }
-
-                sum += digit;
-                shouldDouble = !shouldDouble;
-            }
-
-            return sum % 10 === 0;
-        }
-
-        // Обработка кнопки проверки
-        validateBtn.addEventListener('click', function() {
-            const cardNumber = cardNumberInput.value.replace(/\D/g, '');
-            
-            if (!cardNumber) {
-                alert('Введите номер карты');
-                return;
-            }
-
-            if (luhnCheck(cardNumber)) {
-                alert('Карта валидна!');
-            } else {
-                alert('Карта невалидна!');
-            }
-        });
-
-        // Инициализация при загрузке
-        detectPaymentSystem('4111111111111111');
-    </script>
 </body>
 </html>

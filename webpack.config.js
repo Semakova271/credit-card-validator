@@ -1,14 +1,14 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  entry: './src/js/app.js',
+  entry: './src/index.js',
   output: {
     filename: 'main.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
-    assetModuleFilename: 'img/[name][ext]' // Сохранять изображения в img/
+    assetModuleFilename: 'img/[name][ext]'
   },
   module: {
     rules: [
@@ -28,20 +28,23 @@ module.exports = {
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
-        type: 'asset/resource'
+        type: 'asset/resource',
+        generator: {
+          filename: 'img/[name][ext]'
+        }
       }
     ]
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/index.html'
+      // Убрана строка с favicon
     }),
-    // Копируем все изображения из src/img в dist/img
-    new CopyWebpackPlugin({
+    new CopyPlugin({
       patterns: [
-        {
-          from: 'src/img',
-          to: 'img',
+        { 
+          from: 'licenses.txt', 
+          to: 'licenses.txt',
           noErrorOnMissing: true
         }
       ]
