@@ -31,11 +31,11 @@ export function detectPaymentSystem(cardNumber) {
 
 export function getPaymentSystemName(systemCode) {
   const names = {
-    'visa': 'Visa',
-    'mastercard': 'Mastercard',
-    'mir': 'МИР',
-    'amex': 'American Express',
-    'discover': 'Discover'  // Добавлена поддержка Discover
+    visa: 'Visa',
+    mastercard: 'Mastercard',
+    mir: 'МИР',
+    amex: 'American Express',
+    discover: 'Discover'  // Добавлена поддержка Discover
   };
   return names[systemCode] || 'Неизвестная система';
 }
