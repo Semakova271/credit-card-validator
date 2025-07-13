@@ -1,24 +1,29 @@
 {
-  "extends": "airbnb-base",
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+  "plugins": ["prettier"],
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "requireConfigFile": false,
+    "babelOptions": {
+      "presets": ["@babel/preset-env"]
+    },
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
   "env": {
     "browser": true,
     "node": true,
-    "es6": true,
-    "jest": true
+    "jest": true,
+    "es6": true
   },
   "rules": {
-    "no-console": "off",
-    "import/prefer-default-export": "off",
-    "max-len": ["error", { "code": 120, "ignoreComments": true }],
-    "linebreak-style": "off",
-    "import/extensions": "off",
-    "quote-props": ["error", "consistent-as-needed"],
-    "comma-dangle": ["error", "only-multiline"],
-    "no-plusplus": "off",
-    "func-names": "off",
-    "space-before-function-paren": ["error", "always"],
-    "prefer-arrow-callback": "off",
-    "arrow-parens": ["error", "as-needed"],
-    "indent": ["error", 2, { "SwitchCase": 1 }]
+    "indent": ["error", 2],
+    "linebreak-style": ["error", "windows"],
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "no-trailing-spaces": "error",
+    "eol-last": ["error", "always"],
+    "prettier/prettier": "error",
+    "no-console": "off"
   }
 }

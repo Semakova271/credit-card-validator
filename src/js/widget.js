@@ -1,48 +1,70 @@
 import {
-  detectPaymentSystem,
-  getPaymentSystemName,
-  formatCardNumber
+  detectPaymentSystemByPrefix, // Используем быструю функцию
+  formatCardNumber,
+  validateCardNumber,
 } from './paymentSystems.js';
-import { validateCardNumber } from './validator.js';
 
 import visaImg from '../img/visa.png';
 import mastercardImg from '../img/mastercard.png';
 import mirImg from '../img/mir.png';
 import amexImg from '../img/amex.png';
 import discoverImg from '../img/discover.png';
+import jcbImg from '../img/jcb.png';
 
-export function initWidget () {
+export function initWidget() {
   const cardInput = document.getElementById('cardNumber');
   const validateBtn = document.getElementById('validateBtn');
   const resultDiv = document.getElementById('result');
+  const resultText = document.getElementById('resultText');
   const cardHeader = document.getElementById('card-header');
-  const resultText = resultDiv.querySelector('.result-text');
 
-  const paymentSystemImages = {
-    visa: visaImg,
-    mastercard: mastercardImg,
-    mir: mirImg,
-    amex: amexImg,
-    discover: discoverImg
-  };
+  // Проверяем, что все необходимые элементы существуют
+  if (!cardInput || !validateBtn || !resultDiv || !resultText || !cardHeader) {
+    console.error('Не удалось найти необходимые элементы для инициализации виджета');
+    return;
+  }
 
-  function updatePaymentSystem (paymentSystem) {
-    cardHeader.innerHTML = '';
+  // Создаем и добавляем логотипы платежных систем
+  const paymentSystems = [
+    { id: 'visa', name: 'Visa', img: visaImg },
+    { id: 'mastercard', name: 'Mastercard', img: mastercardImg },
+    { id: 'mir', name: 'МИР', img: mirImg },
+    { id: 'amex', name: 'American Express', img: amexImg },
+    { id: 'discover', name: 'Discover', img: discoverImg },
+    { id: 'jcb', name: 'JCB', img: jcbImg },
+  ];
 
-    if (paymentSystem && paymentSystemImages[paymentSystem]) {
-      const img = document.createElement('img');
-      img.src = paymentSystemImages[paymentSystem];
-      img.alt = getPaymentSystemName(paymentSystem);
-      cardHeader.appendChild(img);
-    } else if (paymentSystem) {
-      const text = document.createElement('div');
-      text.textContent = getPaymentSystemName(paymentSystem);
-      cardHeader.appendChild(text);
+  paymentSystems.forEach((system) => {
+    const img = document.createElement('img');
+    img.src = system.img;
+    img.alt = system.name;
+    img.dataset.system = system.id;
+    cardHeader.appendChild(img);
+  });
+
+  const paymentLogos = document.querySelectorAll('#card-header img');
+
+  // Функция обновления подсветки платежных систем
+  function updatePaymentSystem(paymentSystem) {
+    // Сбрасываем все логотипы в серый цвет
+    paymentLogos.forEach((logo) => {
+      logo.classList.remove('active');
+    });
+
+    // Подсвечиваем активную систему
+    if (paymentSystem) {
+      const activeLogo = document.querySelector(`#card-header img[data-system="${paymentSystem}"]`);
+      if (activeLogo) {
+        activeLogo.classList.add('active');
+      }
     }
   }
 
-  function showResult (isValid) {
+  // Функция показа результата
+  function showResult(isValid) {
+    // Очищаем классы
     resultDiv.className = 'result';
+    resultDiv.classList.add('show');
 
     if (isValid) {
       resultDiv.classList.add('valid');
@@ -53,11 +75,19 @@ export function initWidget () {
     }
   }
 
-  // Автоформатирование номера карты
+  // Обработка ввода номера карты
   cardInput.addEventListener('input', function () {
     this.value = formatCardNumber(this.value);
-    const paymentSystem = detectPaymentSystem(this.value);
-    updatePaymentSystem(paymentSystem);
+    const cleanNumber = this.value.replace(/\D/g, '');
+
+    // Быстрое определение системы по первым цифрам
+    if (cleanNumber.length >= 2) {
+      const paymentSystem = detectPaymentSystemByPrefix(cleanNumber);
+      updatePaymentSystem(paymentSystem);
+    } else {
+      // Сбрасываем подсветку при очистке поля
+      paymentLogos.forEach((logo) => logo.classList.remove('active'));
+    }
 
     // Скрываем предыдущий результат
     resultDiv.className = 'result';
@@ -76,9 +106,10 @@ export function initWidget () {
     showResult(isValid);
   });
 
-  // Инициализация тестовой картой
+  // Инициализация при загрузке
   const testCard = '4111111111111111';
   cardInput.value = formatCardNumber(testCard);
-  const paymentSystem = detectPaymentSystem(testCard);
-  updatePaymentSystem(paymentSystem);
+
+  // Автоматическая подсветка Visa при загрузке
+  updatePaymentSystem('visa');
 }

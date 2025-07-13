@@ -2,7 +2,7 @@ const { validateCardNumber } = require('../validator');
 const {
   detectPaymentSystem,
   getPaymentSystemName,
-  formatCardNumber
+  formatCardNumber,
 } = require('../paymentSystems');
 
 // Тесты для функции validateCardNumber
@@ -13,10 +13,10 @@ describe('validateCardNumber', () => {
       '5500000000000004', // Mastercard
       '2200000000000004', // МИР
       '340000000000009', // American Express
-      '6011000990139424' // Discover
+      '6011000990139424', // Discover
     ];
 
-    validCards.forEach(card => {
+    validCards.forEach((card) => {
       expect(validateCardNumber(card)).toBe(true);
     });
   });
@@ -27,10 +27,10 @@ describe('validateCardNumber', () => {
       '5500000000000005', // Изменена последняя цифра
       '2200000000000005', // Изменена последняя цифра
       '1234567812345678', // Случайный номер
-      '0000000000000001' // Невалидный номер
+      '0000000000000001', // Невалидный номер
     ];
 
-    invalidCards.forEach(card => {
+    invalidCards.forEach((card) => {
       expect(validateCardNumber(card)).toBe(false);
     });
   });
@@ -40,10 +40,10 @@ describe('validateCardNumber', () => {
       '41111111111111', // 14 цифр
       '55000000000000044', // 17 цифр
       '2200', // 4 цифры
-      '34000000000000912' // 17 цифр
+      '34000000000000912', // 17 цифр
     ];
 
-    invalidLengthCards.forEach(card => {
+    invalidLengthCards.forEach((card) => {
       expect(validateCardNumber(card)).toBe(false);
     });
   });
@@ -74,7 +74,7 @@ describe('detectPaymentSystem', () => {
       { number: '6011000990139424', expected: 'discover' },
       { number: '6500000000000004', expected: 'discover' },
       { number: '1234567812345678', expected: null }, // Неизвестная система
-      { number: '9999999999999999', expected: null } // Неизвестная система
+      { number: '9999999999999999', expected: null }, // Неизвестная система
     ];
 
     testCases.forEach(({ number, expected }) => {
@@ -106,7 +106,7 @@ describe('getPaymentSystemName', () => {
       { code: 'amex', expected: 'American Express' },
       { code: 'discover', expected: 'Discover' },
       { code: 'unknown', expected: 'Неизвестная система' },
-      { code: null, expected: 'Неизвестная система' }
+      { code: null, expected: 'Неизвестная система' },
     ];
 
     testCases.forEach(({ code, expected }) => {
@@ -128,7 +128,7 @@ describe('formatCardNumber', () => {
       { number: '1234', expected: '1234' },
       { number: '12345678', expected: '1234 5678' },
       { number: '123456789012', expected: '1234 5678 9012' },
-      { number: '', expected: '' }
+      { number: '', expected: '' },
     ];
 
     testCases.forEach(({ number, expected }) => {

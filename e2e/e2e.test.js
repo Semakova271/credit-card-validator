@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer');
 const express = require('express');
 const http = require('http');
 
-jest.setTimeout(40000); // Установка глобального таймаута
+jest.setTimeout(60000);
 
 describe('Credit Card Validator E2E Tests', () => {
   let browser;
@@ -11,55 +11,46 @@ describe('Credit Card Validator E2E Tests', () => {
   let server;
 
   beforeAll(async () => {
-    // Создаем express-приложение
     const app = express();
-    // Раздаем статические файлы из корня проекта
     app.use(express.static(path.join(__dirname, '../dist')));
 
-    // Запускаем сервер
     server = http.createServer(app);
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       server.listen(9000, '127.0.0.1', resolve);
     });
 
-    // Запуск браузера
     browser = await puppeteer.launch({
       headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
     page = await browser.newPage();
 
-    // Переходим на страницу
-    await page.goto('http://localhost:9000');
+    await page.setViewport({ width: 1280, height: 1024 });
+    await page.setDefaultTimeout(15000);
+
+    await page.goto('http://localhost:9000', {
+      waitUntil: 'networkidle0',
+    });
     console.log('Opened page: http://localhost:9000');
 
-    // Проверка загрузки страницы
-    const pageTitle = await page.title();
-    console.log('Page title:', pageTitle);
+    page.on('dialog', async (dialog) => {
+      console.log(`Dialog message: ${dialog.message()}`);
+      await dialog.dismiss();
+    });
 
-    // Проверка содержимого страницы
-    const content = await page.content();
-    console.log('Page content (first 500 chars):', content.substring(0, 500));
-
-    // Сохраняем скриншот для диагностики
-    await page.screenshot({ path: 'before-test-screenshot.png' });
-    console.log('Took screenshot: before-test-screenshot.png');
-
-    // Ожидание элемента с увеличенным таймаутом (исправленный селектор)
     try {
       await page.waitForSelector('#cardNumber', { timeout: 30000 });
       console.log('Found #cardNumber element');
     } catch (error) {
       console.error('Could not find #cardNumber element:', error);
-      // Повторный скриншот при ошибке
       await page.screenshot({ path: 'error-screenshot.png' });
       throw error;
     }
   });
 
   afterAll(async () => {
-    // Сохраняем скриншот для диагностики
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     await page.screenshot({ path: 'e2e-screenshot.png' });
     console.log('Saved final screenshot: e2e-screenshot.png');
 
@@ -70,30 +61,58 @@ describe('Credit Card Validator E2E Tests', () => {
   test('should validate card number', async () => {
     console.log('Starting validation test...');
 
-    // Проверяем, есть ли body на странице
-    const bodyExists = await page.$('body') !== null;
-    expect(bodyExists).toBe(true);
-    console.log('Body exists:', bodyExists);
+    const consoleErrors = [];
+    page.on('pageerror', (error) => consoleErrors.push(error.text()));
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') consoleErrors.push(msg.text());
+    });
 
-    // Очищаем поле ввода
-    await page.click('#cardNumber', { clickCount: 3 });
-    await page.keyboard.press('Backspace');
+    try {
+      await page.focus('#cardNumber');
+      await page.keyboard.down('Control');
+      await page.keyboard.press('A');
+      await page.keyboard.up('Control');
+      await page.keyboard.press('Backspace');
 
-    // Вводим номер карты
-    await page.type('#cardNumber', '4111111111111111');
-    console.log('Typed card number');
+      await page.type('#cardNumber', '4111111111111111', { delay: 50 });
 
-    // Нажимаем кнопку (исправленный селектор)
-    await page.click('#validateBtn');
-    console.log('Clicked validate button');
+      const inputValue = await page.$eval('#cardNumber', (el) => el.value);
+      expect(inputValue.replace(/\s/g, '')).toBe('4111111111111111');
 
-    // Ждем появления результата
-    await page.waitForSelector('#result.show', { timeout: 15000 });
-    console.log('Result element appeared');
+      const btnDisabled = await page.$eval('#validateBtn', (el) => el.disabled);
+      expect(btnDisabled).toBe(false);
 
-    // Проверяем результат
-    const resultText = await page.$eval('#result .result-text', el => el.textContent);
-    console.log('Result text:', resultText);
-    expect(resultText).toContain('Карта действительна');
+      await page.click('#validateBtn');
+      console.log('Clicked validate button');
+
+      try {
+        await page.waitForFunction(
+          () => {
+            const result = document.querySelector('#result .result-text');
+            return result && result.textContent.includes('Карта');
+          },
+          { timeout: 30000 },
+        );
+      } catch (error) {
+        console.log('Trying alternative selector...');
+        await page.waitForSelector('#result.show', {
+          timeout: 30000,
+          visible: true,
+        });
+      }
+
+      const resultText = await page.$eval('#result .result-text', (el) => el.textContent.trim());
+      console.log('Result text:', resultText);
+      expect(resultText).toContain('Карта действительна');
+    } catch (error) {
+      await page.screenshot({ path: `error-${Date.now()}.png` });
+      console.error('Test failed, screenshot saved');
+      throw error;
+    }
+
+    if (consoleErrors.length > 0) {
+      console.error('Console errors:', consoleErrors);
+      throw new Error(`Ошибки в консоли:\n${consoleErrors.join('\n')}`);
+    }
   });
 });

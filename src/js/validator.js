@@ -1,4 +1,4 @@
-export function validateCardNumber (cardNumber) {
+export function validateCardNumber(cardNumber) {
   const cleanNumber = cardNumber.replace(/\D/g, '');
 
   if (cleanNumber.length < 13 || cleanNumber.length > 19) {

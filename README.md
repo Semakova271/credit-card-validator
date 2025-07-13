@@ -6,22 +6,27 @@
 A widget for validating credit card numbers and detecting payment systems.
 
 ## Features
+
 - Real-time credit card validation using Luhn algorithm
 - Payment system detection (Visa, Mastercard, Mir, American Express)
 - Responsive design
 - Comprehensive unit and e2e tests
 
 ## Live Demo
+
 [View on GitHub Pages](https://semakova271.github.io/credit-card-validator/)
 
 ## Development
+
 1. Clone the repository
 2. Install dependencies: `npm install`
 3. Start dev server: `npm start`
 
 ## Testing
+
 - Unit tests: `npm test`
 - E2E tests: `npm run e2e`
 
 ## License
+
 All card images are used for educational purposes only.# credit-card-validator

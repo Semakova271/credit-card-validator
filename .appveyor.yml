@@ -1,7 +1,7 @@
 version: 1.0.{build}
 image: Visual Studio 2019
 environment:
-  nodejs_version: "16"
+  nodejs_version: '16'
 install:
   - ps: Install-Product node $env:nodejs_version
   - npm install
